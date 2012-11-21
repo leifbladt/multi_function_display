@@ -6,7 +6,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(getTemp());
+  Serial.println(formatOutput(getTemp()));
   delay(1000);
 }
 
@@ -15,6 +15,9 @@ float getTemp() {
   return temp * 0.488;
 }
 
+float formatOutput(const float input) {
+  return round(input * 10) / float(10);
+}
 
 
 
