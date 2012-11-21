@@ -1,5 +1,9 @@
 const int tempPin = A0;
 
+const int BUFFER_SIZE = 3;
+int buffer[BUFFER_SIZE];
+int bufferPos = 0;
+
 void setup() {
   delay(500);
   Serial.begin(9600);
@@ -11,8 +15,15 @@ void loop() {
 }
 
 float getTemp() {
-  const int temp = analogRead(tempPin);
-  return temp * 0.488;
+  buffer[bufferPos] = analogRead(tempPin);
+  bufferPos = (bufferPos + 1) % BUFFER_SIZE;
+  
+  int sum = 0;
+  for (int i = 0; i < BUFFER_SIZE; i++) {
+    sum += buffer[i];
+  }
+  
+  return sum / BUFFER_SIZE * 0.488;
 }
 
 float formatOutput(const float input) {
