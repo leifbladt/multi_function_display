@@ -1,40 +1,10 @@
 #include <LiquidCrystal.h>
+#include <LM35.h>
 
 const int tempPin = A0;
 const int buttonPin = 2;
 
 long lastMeasureTime = 0;
-
-class LM35 {
-  // TODO Make those private
-  static const int BUFFER_SIZE = 3;
-  int buffer[BUFFER_SIZE];
-  int bufferPos;
-  int _pin;
-
-public:
-  LM35(const int pin) {
-    _pin = pin;
-    bufferPos = 0;
-  }
-
-  float getTemp() {
-    buffer[bufferPos] = analogRead(_pin);
-    bufferPos = (bufferPos + 1) % BUFFER_SIZE;
-
-    int sum = 0;
-    for (int i = 0; i < BUFFER_SIZE; i++) {
-      sum += buffer[i];
-    }
-
-    return formatOutput(sum / BUFFER_SIZE * 0.488);
-  }
-
-private:
-  float formatOutput(const float input) {
-    return round(input * 10) / float(10);
-  }
-};
 
 // TODO Simplify button class
 class Button {
@@ -69,7 +39,8 @@ class Display {
 
 public:
   // TODO Default constructor?
-  Display(int tmp) : _lcd(12, 11, 6, 5, 4, 3), _lm35(tempPin) {
+  Display(int tmp) : 
+  _lcd(12, 11, 6, 5, 4, 3), _lm35(tempPin) {
     _lcd.begin(16, 2);
     _currentPage = 0;
   }
