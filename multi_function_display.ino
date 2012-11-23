@@ -3,7 +3,7 @@ const int tempPin = A0;
 class LM35 {
   static const int BUFFER_SIZE = 3;
   int buffer[BUFFER_SIZE];
-  int bufferPos; // FIXME shouldn't be static
+  int bufferPos;
   int _pin;
 
 public:
@@ -41,10 +41,3 @@ void loop() {
   Serial.println(lm35.getTemp());
   delay(1000);
 }
-
-
-
-
-
-
-
