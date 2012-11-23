@@ -3,13 +3,6 @@
 const int tempPin = A0;
 const int buttonPin = 7;
 
-int buttonState;             // the current reading from the input pin
-int lastButtonState = LOW;   // the previous reading from the input pin
-
-// the following variables are long's because the time, measured in miliseconds,
-// will quickly become a bigger number than can be stored in an int.
-long lastDebounceTime = 0;  // the last time the output pin was toggled
-long debounceDelay = 50;    // the debounce time; increase if the output flickers
 long lastTempTime = 0;
 
 class LM35 {
@@ -42,8 +35,52 @@ private:
   }
 };
 
+// TODO Simplify button class
+class Button {
+  int _pin;
+  int buttonState;             // the current reading from the input pin
+  int lastButtonState;   // the previous reading from the input pin
+
+  // the following variables are long's because the time, measured in miliseconds,
+  // will quickly become a bigger number than can be stored in an int.
+  long lastDebounceTime;  // the last time the output pin was toggled
+  static const long debounceDelay = 50;    // the debounce time; increase if the output flickers
+
+public:
+  Button(const int pin) {
+    _pin = pin;
+    lastDebounceTime = 0;
+    lastButtonState = LOW;
+  }
+
+  boolean pressed() {
+    // read the state of the switch into a local variable:
+    int reading = digitalRead(buttonPin);
+
+    // check to see if you just pressed the button 
+    // (i.e. the input went from LOW to HIGH),  and you've waited 
+    // long enough since the last press to ignore any noise:  
+
+    // If the switch changed, due to noise or pressing:
+    if (reading != lastButtonState) {
+      // reset the debouncing timer
+      lastDebounceTime = millis();
+    }    
+
+    if ((millis() - lastDebounceTime) > debounceDelay) {
+      // whatever the reading is at, it's been there for longer
+      // than the debounce delay, so take it as the actual current state:
+      buttonState = reading;
+    }
+    lastButtonState = reading;
+    
+    return buttonState  == HIGH;
+  }
+};
+
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 LM35 lm35(tempPin);
+Button button(buttonPin);
 
 void setup() {
   pinMode(buttonPin, INPUT);
@@ -61,26 +98,7 @@ void loop() {
     lastTempTime = millis();
   }
 
-  // read the state of the switch into a local variable:
-  int reading = digitalRead(buttonPin);
-
-  // check to see if you just pressed the button 
-  // (i.e. the input went from LOW to HIGH),  and you've waited 
-  // long enough since the last press to ignore any noise:  
-
-  // If the switch changed, due to noise or pressing:
-  if (reading != lastButtonState) {
-    // reset the debouncing timer
-    lastDebounceTime = millis();
-  }
-
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    // whatever the reading is at, it's been there for longer
-    // than the debounce delay, so take it as the actual current state:
-    buttonState = reading;
-  }
-
-  if (buttonState == HIGH) {
+  if (button.pressed()) {
     lcd.setCursor(0, 1);
     lcd.print("Button pressed");
   } 
@@ -88,5 +106,4 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print("                ");
   }
-  lastButtonState = reading;
 }
