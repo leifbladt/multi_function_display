@@ -1,4 +1,7 @@
+#include <LiquidCrystal.h>
+
 const int tempPin = A0;
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 class LM35 {
   static const int BUFFER_SIZE = 3;
@@ -33,11 +36,12 @@ private:
 LM35 lm35(tempPin);
 
 void setup() {
-  delay(500);
-  Serial.begin(9600);
+  lcd.begin(16, 2);
+  lcd.print("Temperatur: ");
 }
 
 void loop() {
-  Serial.println(lm35.getTemp());
+  lcd.setCursor(0, 1);
+  lcd.print(lm35.getTemp());
   delay(1000);
 }
