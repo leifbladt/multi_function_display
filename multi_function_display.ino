@@ -2,9 +2,11 @@
 #include <LM35.h>
 
 const int tempPin = A0;
+const int bgPin = A1;
 const int buttonPin = 2;
 
 long lastMeasureTime = 0;
+long lastBgTime = 0;
 
 // TODO Simplify button class
 class Button {
@@ -75,10 +77,17 @@ Button button(buttonPin);
 Display display(0);
 
 void setup() {
+  pinMode(bgPin, INPUT);
   display.render();
+//  Serial.begin(9600);
+  setBackground();
 }
 
 void loop() {
+  if ((millis() - lastBgTime) >= 3000) {
+    setBackground();
+  }
+  
   if (button.released()) {
     display.switchPage();
   }
@@ -88,4 +97,10 @@ void loop() {
     display.render();
     lastMeasureTime = millis();
   }
+}
+
+void setBackground() {
+  const int ldr = map(analogRead(bgPin), 0, 511, 0, 191) + 64;
+  analogWrite(9, ldr);
+  lastBgTime = millis();
 }
