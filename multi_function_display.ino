@@ -2,13 +2,11 @@
 
 const int tempPin = A0;
 const int buttonPin = 2;
-const int PAGES = 2;
 
-long lastTempTime = 0;
-long lastSwitch = 0;
-int currentPage = 0;
+long lastMeasureTime = 0;
 
 class LM35 {
+  // TODO Make those private
   static const int BUFFER_SIZE = 3;
   int buffer[BUFFER_SIZE];
   int bufferPos;
@@ -21,7 +19,7 @@ public:
   }
 
   float getTemp() {
-    buffer[bufferPos] = analogRead(tempPin);
+    buffer[bufferPos] = analogRead(_pin);
     bufferPos = (bufferPos + 1) % BUFFER_SIZE;
 
     int sum = 0;
@@ -40,60 +38,83 @@ private:
 
 // TODO Simplify button class
 class Button {
+  // TODO Make those private
   int _pin;
   int lastButtonState;   // the previous reading from the input pin
 
 public:
   Button(const int pin) {
+    pinMode(_pin, INPUT);
     _pin = pin;
     lastButtonState = LOW;
   }
 
   boolean released() {
-    const int buttonState = digitalRead(buttonPin);
+    const int buttonState = digitalRead(_pin);
 
     const boolean released = (buttonState == LOW) && (lastButtonState == HIGH);
     lastButtonState = buttonState;
     delay(50); // TODO Debounce without delay
-    
+
     return released;
   }
 };
 
-LiquidCrystal lcd(12, 11, 6, 5, 4, 3);
-LM35 lm35(tempPin);
+class Display {
+  // TODO Make thos private
+  static const int PAGES = 2;
+  LiquidCrystal _lcd;
+  LM35 _lm35;
+  int _currentPage;
+
+public:
+  // TODO Default constructor?
+  Display(int tmp) : _lcd(12, 11, 6, 5, 4, 3), _lm35(tempPin) {
+    _lcd.begin(16, 2);
+    _currentPage = 0;
+  }
+
+  void switchPage() {
+    _currentPage = (_currentPage + 1) % PAGES;
+    clear();
+    render();
+  }
+
+  void clear() {
+    _lcd.clear();
+    _lcd.setCursor(0, 0);
+  }
+
+  void render() {
+    if (_currentPage == 0) {
+      _lcd.setCursor(0, 0);
+      _lcd.print("Temp 1");
+      _lcd.setCursor(11, 0);
+      _lcd.print(_lm35.getTemp());
+    } 
+    else {
+      _lcd.setCursor(0, 0);
+      _lcd.print("Hello World!");
+    }
+  }
+};
+
+
 Button button(buttonPin);
+Display display(0);
 
 void setup() {
-  pinMode(buttonPin, INPUT);
-  lcd.begin(16, 2);
-  delay(500);
-  Serial.begin(9600);
+  display.render();
 }
 
 void loop() {
-   if (button.released()) {
-    currentPage = (currentPage + 1) % PAGES;
-    Serial.println("released");
+  if (button.released()) {
+    display.switchPage();
   }
-  
-  if (currentPage == 0) {
-    if ((millis() - lastTempTime) >= 1000) {
-      // TODO Clear only on page switch
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Temp 1");
-      lcd.setCursor(11, 0);
-      lcd.print(lm35.getTemp());
-      lastTempTime = millis();
-    }
-  } else {
-    if ((millis() - lastTempTime) >= 1000) {
-      // TODO Clear only on page switch
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Hello World!");
-      lastTempTime = millis();
-    }
+
+  // Update screens every 3 seconds
+  if ((millis() - lastMeasureTime) >= 3000) {
+    display.render();
+    lastMeasureTime = millis();
   }
 }
