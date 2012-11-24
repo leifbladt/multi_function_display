@@ -1,5 +1,6 @@
 #include <LiquidCrystal.h>
-#include <LM35.h>
+#include "LM35.h"
+#include "Button.h"
 
 const int tempPin = A0;
 const int bgPin = A1;
@@ -7,30 +8,6 @@ const int buttonPin = 7;
 
 long lastMeasureTime = 0;
 long lastBgTime = 0;
-
-// TODO Simplify button class
-class Button {
-  // TODO Make those private
-  int _pin;
-  int lastButtonState;   // the previous reading from the input pin
-
-public:
-  Button(const int pin) {
-    pinMode(_pin, INPUT);
-    _pin = pin;
-    lastButtonState = LOW;
-  }
-
-  boolean released() {
-    const int buttonState = digitalRead(_pin);
-
-    const boolean released = (buttonState == LOW) && (lastButtonState == HIGH);
-    lastButtonState = buttonState;
-    delay(50); // TODO Debounce without delay
-
-    return released;
-  }
-};
 
 class Display {
   // TODO Make thos private
