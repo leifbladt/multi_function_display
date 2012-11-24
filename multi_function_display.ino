@@ -3,7 +3,7 @@
 
 const int tempPin = A0;
 const int bgPin = A1;
-const int buttonPin = 2;
+const int buttonPin = 7;
 
 long lastMeasureTime = 0;
 long lastBgTime = 0;
@@ -42,7 +42,7 @@ class Display {
 public:
   // TODO Default constructor?
   Display(int tmp) : 
-  _lcd(12, 11, 6, 5, 4, 3), _lm35(tempPin) {
+  _lcd(12, 11, 5, 4, 3, 2), _lm35(tempPin) {
     _lcd.begin(16, 2);
     _currentPage = 0;
   }
