@@ -77,12 +77,20 @@ public:
     if (_currentPage == 0) {
       _lcd.setCursor(0, 0);
       _lcd.print("Temp:");
-      _lcd.setCursor(11, 0);
-      _lcd.print(_m.getTemp());
+      _lcd.setCursor(12, 0);
+      _lcd.print(formatFloat(_m.getTemp()));
     } else {
       _lcd.setCursor(0, 0);
       _lcd.print("Hello World!");
     }
+  }
+  
+  private:
+  
+  char* formatFloat(float input) {
+    char c[6];
+    dtostrf(round(input * 10) / float(10), 4, 1, c);
+    return c;
   }
 };
 

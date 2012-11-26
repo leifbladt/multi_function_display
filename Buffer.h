@@ -11,7 +11,5 @@ private:
   static const int BUFFER_SIZE = 3;
   float buffer[BUFFER_SIZE];
   int bufferPos;
-
-  float formatOutput(const float input);
 };
 #endif

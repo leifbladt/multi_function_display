@@ -12,9 +12,5 @@ float Buffer::getValue() {
   for (int i = 0; i < BUFFER_SIZE; i++) {
     sum += buffer[i];
   }
-  return formatOutput(sum / (float)BUFFER_SIZE);
-}
-
-float Buffer::formatOutput(const float input) {
-  return round(input * 10) / float(10);
+  return sum / (float)BUFFER_SIZE;
 }
