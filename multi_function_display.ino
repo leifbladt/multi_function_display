@@ -1,11 +1,9 @@
 #include <LiquidCrystal.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "LM35.h"
 #include "Button.h"
 
-const int tempPin = A0;
-const int temp2Pin = 6;
+const int tempPin = 6;
 const int bgPin = A1;
 const int buttonPin = 7;
 
@@ -42,38 +40,32 @@ private:
 };
 
 class Measurements {
-  LM35 _lm35;
   OneWire _ds;
   DallasTemperature _sensors;
 
 public:
+// TODO Default constructor
   Measurements(int tmp) : 
-  _lm35(tempPin), _ds(temp2Pin), _sensors(&_ds), _temp2() {
+  _ds(tempPin), _sensors(&_ds), _temp() {
     _sensors.begin();
   }
 
   void update() {
-    _temp1 = _lm35.getTemp();
     _sensors.requestTemperatures();
-    _temp2.addValue(_sensors.getTempC(thermometer));
+    _temp.addValue(_sensors.getTempC(thermometer));
   }
 
-  float getTemp1() {
-    return _temp1;
-  }
-
-  float getTemp2() {
-    return _temp2.getValue();
+  float getTemp() {
+    return _temp.getValue();
   }
 
 private:
-  float _temp1;
-  Buffer _temp2;  
+  Buffer _temp;  
 };
 
 class Display {
   // TODO Make those private
-  static const int PAGES = 3;
+  static const int PAGES = 2;
   LiquidCrystal _lcd;
   Measurements& _m;
 
@@ -103,25 +95,12 @@ public:
   void render() {
     if (_currentPage == 0) {
       _lcd.setCursor(0, 0);
-      _lcd.print("Temp 1");
+      _lcd.print("Temp:");
       _lcd.setCursor(11, 0);
-      _lcd.print(_m.getTemp1());
-    } 
-    else if (_currentPage == 1) {
+      _lcd.print(_m.getTemp());
+    } else {
       _lcd.setCursor(0, 0);
-      _lcd.print("Temp 1: ");
-      _lcd.setCursor(11, 0);
-      _lcd.print(_m.getTemp1());
-      _lcd.setCursor(0, 1);
-      _lcd.print("Temp 2:");
-      _lcd.setCursor(11, 1);
-      _lcd.print(_m.getTemp2());
-    } 
-    else {
-      _lcd.setCursor(0, 0);
-      _lcd.print("Temp 2:");
-      _lcd.setCursor(11, 0);
-      _lcd.print(_m.getTemp2());
+      _lcd.print("Hello World!");
     }
   }
 };
