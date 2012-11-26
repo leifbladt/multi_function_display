@@ -15,21 +15,47 @@ long lastBgTime = 0;
 DeviceAddress thermometer = { 
   0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
 
+class Buffer {
+public:
+  float addValue(float value) {
+    buffer[bufferPos] = value;
+    bufferPos = (bufferPos + 1) % BUFFER_SIZE;
+  }
+  
+  float getValue() {
+    // TODO Handle stroed values < BFFER_SIZE 
+    int sum = 0;
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+      sum += buffer[i];
+    }
+    return formatOutput(sum / (float)BUFFER_SIZE);
+  }
+
+private:
+  static const int BUFFER_SIZE = 3;
+  float buffer[BUFFER_SIZE];
+  int bufferPos;
+
+  float formatOutput(const float input) {
+    return round(input * 10) / float(10);
+  }  
+};
+
 class Measurements {
   LM35 _lm35;
   OneWire _ds;
-  DallasTemperature _sensors;  
+  DallasTemperature _sensors;
 
 public:
   Measurements(int tmp) : 
-  _lm35(tempPin), _ds(temp2Pin), _sensors(&_ds) {
+  _lm35(tempPin), _ds(temp2Pin), _sensors(&_ds), _temp2() {
     _sensors.begin();
   }
-  
+
   void update() {
     _temp1 = _lm35.getTemp();
     _sensors.requestTemperatures();
-    _temp2 = _sensors.getTempC(thermometer);    
+    _temp2.addValue(_sensors.getTempC(thermometer));
   }
 
   float getTemp1() {
@@ -37,11 +63,12 @@ public:
   }
 
   float getTemp2() {
-    return _temp2;
+    return _temp2.getValue();
   }
-  
+
 private:
-  float _temp1, _temp2;
+  float _temp1;
+  Buffer _temp2;  
 };
 
 class Display {
@@ -49,7 +76,7 @@ class Display {
   static const int PAGES = 3;
   LiquidCrystal _lcd;
   Measurements& _m;
-  
+
   int _currentPage;
 
 public:
@@ -59,7 +86,7 @@ public:
     _m = m;
     _lcd.begin(16, 2);
     _currentPage = 0;
-    
+
   }
 
   void switchPage() {
@@ -133,3 +160,4 @@ void setBackground() {
   analogWrite(9, ldr);
   lastBgTime = millis();
 }
+
