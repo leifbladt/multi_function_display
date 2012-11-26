@@ -15,23 +15,51 @@ long lastBgTime = 0;
 DeviceAddress thermometer = { 
   0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
 
-class Display {
-  // TODO Make those private
-  static const int PAGES = 2;
-  LiquidCrystal _lcd;
+class Measurements {
   LM35 _lm35;
-  int _currentPage;
   OneWire _ds;
-  DallasTemperature sensors;
+  DallasTemperature _sensors;  
 
 public:
-  // TODO Default constructor?
-  Display(int tmp) : 
-  _lcd(12, 11, 5, 4, 3, 2), _lm35(tempPin), _ds(temp2Pin), sensors(&_ds)
+  Measurements(int tmp) : 
+  _lm35(tempPin), _ds(temp2Pin), _sensors(&_ds) {
+    _sensors.begin();
+  }
+  
+  void update() {
+    _temp1 = _lm35.getTemp();
+    _sensors.requestTemperatures();
+    _temp2 = _sensors.getTempC(thermometer);    
+  }
+
+  float getTemp1() {
+    return _temp1;
+  }
+
+  float getTemp2() {
+    return _temp2;
+  }
+  
+private:
+  float _temp1, _temp2;
+};
+
+class Display {
+  // TODO Make those private
+  static const int PAGES = 3;
+  LiquidCrystal _lcd;
+  Measurements& _m;
+  
+  int _currentPage;
+
+public:
+  Display(Measurements& m) :
+  _lcd(12, 11, 5, 4, 3, 2), _m(m)
   {
+    _m = m;
     _lcd.begin(16, 2);
     _currentPage = 0;
-    sensors.begin();
+    
   }
 
   void switchPage() {
@@ -50,25 +78,31 @@ public:
       _lcd.setCursor(0, 0);
       _lcd.print("Temp 1");
       _lcd.setCursor(11, 0);
-      _lcd.print(_lm35.getTemp());
+      _lcd.print(_m.getTemp1());
+    } 
+    else if (_currentPage == 1) {
+      _lcd.setCursor(0, 0);
+      _lcd.print("Temp 1: ");
+      _lcd.setCursor(11, 0);
+      _lcd.print(_m.getTemp1());
+      _lcd.setCursor(0, 1);
+      _lcd.print("Temp 2:");
+      _lcd.setCursor(11, 1);
+      _lcd.print(_m.getTemp2());
     } 
     else {
       _lcd.setCursor(0, 0);
-      _lcd.print("Temp 2");
+      _lcd.print("Temp 2:");
       _lcd.setCursor(11, 0);
-      _lcd.print(temp2());
+      _lcd.print(_m.getTemp2());
     }
-  }
-
-  float temp2() {
-    sensors.requestTemperatures();
-    return sensors.getTempC(thermometer);
   }
 };
 
 
 Button button(buttonPin);
-Display display(0);
+Measurements m(0);
+Display display(m);
 
 void setup() {
   pinMode(bgPin, INPUT);
@@ -86,8 +120,9 @@ void loop() {
     display.switchPage();
   }
 
-  // Update screens every 3 seconds
-  if ((millis() - lastMeasureTime) >= 3000) {
+  // Update screens every 15 seconds
+  if ((millis() - lastMeasureTime) >= 15000) {
+    m.update();
     display.render();
     lastMeasureTime = millis();
   }
@@ -98,4 +133,3 @@ void setBackground() {
   analogWrite(9, ldr);
   lastBgTime = millis();
 }
-
