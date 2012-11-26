@@ -61,6 +61,12 @@ public:
     clear();
     render();
   }
+  
+  void switchToPage(int page) {
+    _currentPage = page;
+    clear();
+    render();
+  }
 
   void clear() {
     _lcd.clear();
@@ -106,6 +112,10 @@ void loop() {
     m.update();
     display.render();
     lastMeasureTime = millis();
+  }
+  
+  if (m.getTemp() > 25.0) {
+    display.switchToPage(0);
   }
 }
 
