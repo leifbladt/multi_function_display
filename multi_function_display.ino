@@ -1,6 +1,7 @@
 #include <LiquidCrystal.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include "Buffer.h"
 #include "Button.h"
 
 const int tempPin = 6;
@@ -13,38 +14,10 @@ long lastBgTime = 0;
 DeviceAddress thermometer = { 
   0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
 
-class Buffer {
-public:
-  float addValue(float value) {
-    buffer[bufferPos] = value;
-    bufferPos = (bufferPos + 1) % BUFFER_SIZE;
-  }
-  
-  float getValue() {
-    // TODO Handle stroed values < BFFER_SIZE 
-    int sum = 0;
-    for (int i = 0; i < BUFFER_SIZE; i++) {
-      sum += buffer[i];
-    }
-    return formatOutput(sum / (float)BUFFER_SIZE);
-  }
-
-private:
-  static const int BUFFER_SIZE = 3;
-  float buffer[BUFFER_SIZE];
-  int bufferPos;
-
-  float formatOutput(const float input) {
-    return round(input * 10) / float(10);
-  }  
-};
-
 class Measurements {
-  OneWire _ds;
-  DallasTemperature _sensors;
-
+  
 public:
-// TODO Default constructor
+  // TODO Default constructor
   Measurements(int tmp) : 
   _ds(tempPin), _sensors(&_ds), _temp() {
     _sensors.begin();
@@ -60,7 +33,9 @@ public:
   }
 
 private:
-  Buffer _temp;  
+  Buffer _temp;
+  OneWire _ds;
+  DallasTemperature _sensors;
 };
 
 class Display {
