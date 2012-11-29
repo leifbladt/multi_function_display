@@ -14,30 +14,34 @@ long lastBgTime = 0;
 DeviceAddress thermometer = { 
   0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
 
+// To discuss:
+// - Measurements holds (buffered) values
+// - Is triggered to update these values
+// - Display registers on Measurements to get notifed on value change
+//
+// Central broker can be used for other changes, like ice warning
+
+
+class Message {
+public:
+  virtual void notify(float value);
+};
+
 class Broker {
 public:
-  Broker() : 
-  pos(0) {
-  }
-
-  void subscribe(void (*f)(float)) {
-    _f[pos] = f;
-    pos++;
+  void subscribe(Message* m) {
+    _m = m;
   }
 
   void notify(float value) {
-    for (int i = 0; i < pos; i++) {
-      (_f[i])(value);
-    }
+    _m->notify(value);
   }
 
 private:
-  void (*_f[10])(float);
-  int pos;  
+  Message* _m;
 };
 
 class Measurements {
-
 public:
   Measurements(Broker* b) : 
   _ds(tempPin), _sensors(&_ds), _temp() {
@@ -62,21 +66,30 @@ private:
   Broker* _b;
 };
 
-class Display {
+class Display : 
+public Message {
   // TODO Make those private
   static const int PAGES = 2;
   LiquidCrystal _lcd;
   Measurements* _m;
+  Broker* _b;
 
   int _currentPage;
 
 public:
-  Display(Measurements* m) :
+  Display(Measurements* m, Broker* b) :
   _lcd(12, 11, 5, 4, 3, 2)
   {
     _m = m;
+    _b = b;
     _lcd.begin(16, 2);
     _currentPage = 0;
+    _b->subscribe(this);
+  }
+
+  void notify(float value) {
+    // TODO Use value from broker
+    render();
   }
 
   void switchPage() {
@@ -110,7 +123,6 @@ public:
   }
 
 private:
-
   char* formatFloat(float input) {
     char c[6];
     dtostrf(round(input * 10) / float(10), 4, 1, c);
@@ -121,22 +133,14 @@ private:
 Button button(buttonPin);
 Broker b;
 Measurements m(&b);
-Display display(&m);
+Display display(&m, &b);
 
 void setup() {
   delay(2000);
   pinMode(bgPin, INPUT);
   display.render();
-  Serial.begin(9600);
+//  Serial.begin(9600);
   setBackground();
-
-  b.subscribe(&updateDisplay);
-}
-
-void updateDisplay(float value) {
-  // Update display when the values changed
-  // TODO Use value from broker
-  display.render();
 }
 
 void loop() {
@@ -160,8 +164,8 @@ void loop() {
 }
 
 void setBackground() {
+  // TODO Move to display class
   const int ldr = map(analogRead(bgPin), 0, 511, 0, 191) + 64;
   analogWrite(9, ldr);
   lastBgTime = millis();
 }
-
