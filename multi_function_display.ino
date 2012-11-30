@@ -14,81 +14,67 @@ long lastBgTime = 0;
 DeviceAddress thermometer = { 
   0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
 
-// To discuss:
-// - Measurements holds (buffered) values
-// - Is triggered to update these values
-// - Display registers on Measurements to get notifed on value change
-//
-// Central broker can be used for other changes, like ice warning
-
-
-class Message {
+class PropertyChangeListener {
 public:
-  virtual void notify(float value);
+  virtual void propertyChange(char* propertyName, float value);
 };
 
-class Broker {
-public:
-  void subscribe(Message* m) {
-    _m = m;
-  }
-
-  void notify(float value) {
-    _m->notify(value);
-  }
-
-private:
-  Message* _m;
-};
 
 class Measurements {
 public:
-  Measurements(Broker* b) : 
+  Measurements() : 
   _ds(tempPin), _sensors(&_ds), _temp() {
-    _b = b;
     _sensors.begin();
   }
 
   void update() {
     _sensors.requestTemperatures();
     _temp.addValue(_sensors.getTempC(thermometer));
-    _b->notify(getTemp());
+    firePropertyChange("temp", getTemp());
+//    _b->notify(getTemp());
   }
 
   float getTemp() {
     return _temp.getValue();
+  }
+  
+  void addPropertyChangeListener(PropertyChangeListener* pcl) {
+    _pcl = pcl;
+  }
+  
+  void firePropertyChange(char* propertyName, float value) {
+    _pcl->propertyChange(propertyName, value);
   }
 
 private:
   Buffer _temp;
   OneWire _ds;
   DallasTemperature _sensors;
-  Broker* _b;
+  PropertyChangeListener* _pcl;
 };
 
 class Display : 
-public Message {
+public PropertyChangeListener {
   // TODO Make those private
   static const int PAGES = 2;
   LiquidCrystal _lcd;
   Measurements* _m;
-  Broker* _b;
+//  Broker* _b;
 
   int _currentPage;
 
 public:
-  Display(Measurements* m, Broker* b) :
+  Display(Measurements* m) :
   _lcd(12, 11, 5, 4, 3, 2)
   {
     _m = m;
-    _b = b;
     _lcd.begin(16, 2);
     _currentPage = 0;
-    _b->subscribe(this);
+    _m->addPropertyChangeListener(this);
   }
 
-  void notify(float value) {
-    // TODO Use value from broker
+  void propertyChange(char* propertyName, float value) {
+    // TODO Use value
     render();
   }
 
@@ -131,9 +117,8 @@ private:
 };
 
 Button button(buttonPin);
-Broker b;
-Measurements m(&b);
-Display display(&m, &b);
+Measurements m;
+Display display(&m);
 
 void setup() {
   delay(2000);
