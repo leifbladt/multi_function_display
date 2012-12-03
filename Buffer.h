@@ -1,15 +1,32 @@
-#ifndef Buffer_h
 #define Buffer_h
 #include "Arduino.h"
+
+
+template <class T>
 class Buffer {
 public:
-  void addValue(float value);
+  void addValue(T value);
   
-  float getValue();
+  T getValue();
 
 private:
   static const int BUFFER_SIZE = 3;
-  float buffer[BUFFER_SIZE];
+  T buffer[BUFFER_SIZE];
   int bufferPos;
 };
-#endif
+
+template <class T>
+void Buffer<T>::addValue(T value) {
+  buffer[bufferPos] = value;
+  bufferPos = (bufferPos + 1) % BUFFER_SIZE;
+}
+  
+template <class T>
+T Buffer<T>::getValue() {
+  // TODO Handle stored values < BUFFER_SIZE 
+  int sum = 0;
+  for (int i = 0; i < BUFFER_SIZE; i++) {
+    sum += buffer[i];
+  }
+  return sum / (T)BUFFER_SIZE;
+}

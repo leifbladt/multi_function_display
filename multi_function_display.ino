@@ -31,7 +31,7 @@ public:
   }
 
 private:
-  Buffer _temp;
+  Buffer <float> _temp;
   OneWire _ds;
   DallasTemperature _sensors;
 };
@@ -129,4 +129,5 @@ void setBackground() {
   analogWrite(9, ldr);
   lastBgTime = millis();
 }
+
 
