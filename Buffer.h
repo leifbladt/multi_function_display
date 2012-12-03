@@ -3,7 +3,7 @@
 #include "Arduino.h"
 class Buffer {
 public:
-  float addValue(float value);
+  void addValue(float value);
   
   float getValue();
 

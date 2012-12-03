@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "Buffer.h"
 
-float Buffer::addValue(float value) {
+void Buffer::addValue(float value) {
   buffer[bufferPos] = value;
   bufferPos = (bufferPos + 1) % BUFFER_SIZE;
 }
