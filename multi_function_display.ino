@@ -103,10 +103,11 @@ private:
   
   char* formatFloat(float input) {
     char c[6];
-    dtostrf(round(input * 10) / float(10), 4, 1, c);
+    float t1 = round(input * 10) / float(10);
+    dtostrf(round(t1 * 2) / float(2), 4, 1, c);
     return c;
   }
-  
+
   void setBackground() {
     const int ldr = map(_m->getBrightness(), 0, 511, 0, 191) + 64;
     analogWrite(pwmPin, ldr);
