@@ -1,7 +1,17 @@
-Multifunktionsanzeige
-=====================
+# Multifunktionsanzeige
 
-Teileliste:
+## Temperatur
+
+
+## Bordspannung
+
+Es sollen beide Stromkreise überwacht werden. 
+
+### TODO
+
+ * Schutzschaltung um den Eingang des Arduino zu schützen. Evtl. mit Zener-Diode?
+
+## Teileliste
 
 * Arduino Leonardo
 * Temperatursensor DS18B20
