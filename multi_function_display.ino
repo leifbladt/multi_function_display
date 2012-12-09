@@ -5,9 +5,8 @@
 #include "Button.h"
 
 const int tempPin = 6;
-const int bgPin = A1;
+const int voltPin = A0;
 const int buttonPin = 7;
-const int pwmPin = 9;
 
 long lastMeasureTime = 0;
 
@@ -17,28 +16,28 @@ DeviceAddress thermometer = {
 class Measurements {
 public:
   Measurements() : 
-  _temp(), _brightness(), _ds(tempPin), _sensors(&_ds) {
+  _temp(), _voltage(), _ds(tempPin), _sensors(&_ds) {
     _sensors.begin();
   }
 
   void update() {
     updateTemp();
-    updateBrightness();
+    updateVoltage();
   }
 
   float getTemp() {
     return _temp.getValue();
   }
 
-  int getBrightness() {
-    Serial.print("read: ");
-    Serial.println(_brightness.getValue());
-    return _brightness.getValue();
+  float getVoltage() {
+    int reading = _voltage.getValue();
+    // TODO Calculate scaling factor only once
+    return reading * 5.0 * (2400000.0 + 1000000.0) / 1000000.0 / 1023;
   }
 
 private:
   Buffer <float> _temp;
-  Buffer <int> _brightness;
+  Buffer <int> _voltage;
   OneWire _ds;
   DallasTemperature _sensors;
 
@@ -47,8 +46,8 @@ private:
     _temp.addValue(_sensors.getTempC(thermometer));
   }
 
-  void updateBrightness() {
-    _brightness.addValue(analogRead(bgPin));
+  void updateVoltage() {
+    _voltage.addValue(analogRead(voltPin));
   }
 };
 
@@ -80,17 +79,17 @@ public:
   }
 
   void render() {
-    setBackground();
-
     if (_currentPage == 0) {
       _lcd.setCursor(0, 0);
       _lcd.print("Temp:");
       _lcd.setCursor(12, 0);
-      _lcd.print(formatFloat(_m->getTemp()));
+      _lcd.print(formatTemperature(_m->getTemp()));
     } 
     else {
       _lcd.setCursor(0, 0);
-      _lcd.print("Hello World!");
+      _lcd.print("Spannung:");
+      _lcd.setCursor(12, 0);
+      _lcd.print(formatVoltage(_m->getVoltage()));
     }
   }
 
@@ -100,17 +99,19 @@ private:
   Measurements* _m;
 
   int _currentPage;
-  
-  char* formatFloat(float input) {
+
+  char* formatTemperature(const float input) {
     char c[6];
     float t1 = round(input * 10) / float(10);
     dtostrf(round(t1 * 2) / float(2), 4, 1, c);
     return c;
   }
 
-  void setBackground() {
-    const int ldr = map(_m->getBrightness(), 0, 511, 0, 191) + 64;
-    analogWrite(pwmPin, ldr);
+  char* formatVoltage(const float input) {
+    char c[6];
+    float t1 = round(input * 10) / float(10);
+    dtostrf(t1, 4, 1, c);
+    return c;
   }
 };
 
@@ -120,10 +121,10 @@ Display display(&m);
 
 void setup() {
   delay(2000);
-  pinMode(bgPin, INPUT);
+  pinMode(voltPin, INPUT);
   m.update();
   display.render();
-//  Serial.begin(9600);
+  //  Serial.begin(9600);
 }
 
 void loop() {
@@ -142,3 +143,4 @@ void loop() {
     display.switchToPage(0);
   }
 }
+
