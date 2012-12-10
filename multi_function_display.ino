@@ -80,14 +80,16 @@ public:
 
   void render() {
     if (_currentPage == 0) {
+      char label[] = "Temp:";
       char c[6];
       formatTemperature(_m->getTemp(), c);
-      show("Temp:", c);
+      show(label, c);
     } 
     else {
+      char label[] = "Spannung:";
       char c[6];
       formatVoltage(_m->getVoltage(), c);
-      show("Spannung:", c);
+      show(label, c);
     }
   }
 
@@ -101,17 +103,21 @@ private:
   void formatTemperature(const float input, char* s) {
     float t1 = round(input * 10) / 10.0;
     dtostrf(round(t1 * 2) / 2.0, 4, 1, s);
+    s[4] = char(223);
+    s[5] = 'C';
   }
 
   void formatVoltage(const float input, char* s) {
     float t1 = round(input * 10) / 10.0;
     dtostrf(t1, 4, 1, s);
+    s[4] = ' ';
+    s[5] = 'V';
   }
   
   void show(char* label, char* value) {
     _lcd.setCursor(0, 0);
     _lcd.print(label);
-    _lcd.setCursor(12, 0);    
+    _lcd.setCursor(10, 0);    
     _lcd.print(value);    
   }
 };
