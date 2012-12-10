@@ -80,16 +80,14 @@ public:
 
   void render() {
     if (_currentPage == 0) {
-      _lcd.setCursor(0, 0);
-      _lcd.print("Temp:");
-      _lcd.setCursor(12, 0);
-      _lcd.print(formatTemperature(_m->getTemp()));
+      char c[6];
+      formatTemperature(_m->getTemp(), c);
+      show("Temp:", c);
     } 
     else {
-      _lcd.setCursor(0, 0);
-      _lcd.print("Spannung:");
-      _lcd.setCursor(12, 0);
-      _lcd.print(formatVoltage(_m->getVoltage()));
+      char c[6];
+      formatVoltage(_m->getVoltage(), c);
+      show("Spannung:", c);
     }
   }
 
@@ -100,18 +98,21 @@ private:
 
   int _currentPage;
 
-  char* formatTemperature(const float input) {
-    char c[6];
-    float t1 = round(input * 10) / float(10);
-    dtostrf(round(t1 * 2) / float(2), 4, 1, c);
-    return c;
+  void formatTemperature(const float input, char* s) {
+    float t1 = round(input * 10) / 10.0;
+    dtostrf(round(t1 * 2) / 2.0, 4, 1, s);
   }
 
-  char* formatVoltage(const float input) {
-    char c[6];
-    float t1 = round(input * 10) / float(10);
-    dtostrf(t1, 4, 1, c);
-    return c;
+  void formatVoltage(const float input, char* s) {
+    float t1 = round(input * 10) / 10.0;
+    dtostrf(t1, 4, 1, s);
+  }
+  
+  void show(char* label, char* value) {
+    _lcd.setCursor(0, 0);
+    _lcd.print(label);
+    _lcd.setCursor(12, 0);    
+    _lcd.print(value);    
   }
 };
 
