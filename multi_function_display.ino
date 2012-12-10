@@ -150,4 +150,3 @@ void loop() {
     display.switchToPage(0);
   }
 }
-

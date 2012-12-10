@@ -13,4 +13,3 @@ private:
   int lastButtonState;   // the previous reading from the input pin
 };
 #endif
-

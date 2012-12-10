@@ -1,7 +1,6 @@
 #define Buffer_h
 #include "Arduino.h"
 
-
 template <class T>
 class Buffer {
 public:

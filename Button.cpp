@@ -16,5 +16,3 @@ boolean Button::released() {
 
   return released;
 }
-
-
