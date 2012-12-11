@@ -16,3 +16,7 @@ Es sollen beide Stromkreise überwacht werden.
 * Arduino Leonardo
 * Temperatursensor DS18B20
 * Widerstand 4.7 kOhm
+* Widerstand 1 MOhm (2x)
+* Widerstand 2.4 MOhm (2x)
+* Taster
+* Widerstand 10 kOhm
