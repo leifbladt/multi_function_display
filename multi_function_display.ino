@@ -4,9 +4,14 @@
 #include "Buffer.h"
 #include "Button.h"
 
+#define R1 3000.0
+#define R2 1000.0
+
 const int tempPin = 6;
 const int voltPin = A0;
 const int buttonPin = 7;
+
+const float voltageFactor = 5.0 * (R1 + R2) / R2 / 1023.0;
 
 long lastMeasureTime = 0;
 
@@ -31,8 +36,7 @@ public:
 
   float getVoltage() {
     int reading = _voltage.getValue();
-    // TODO Calculate scaling factor only once
-    return reading * 5.0 * (2400000.0 + 1000000.0) / 1000000.0 / 1023;
+    return reading * voltageFactor;
   }
 
 private:
