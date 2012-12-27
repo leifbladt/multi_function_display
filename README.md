@@ -1,15 +1,29 @@
 # Multifunktionsanzeige
 
+## TODO Disclaimer
+
 ## Temperatur
+
+ * Genauigkeit des Sensors
 
 
 ## Bordspannung
 
 Es sollen beide Stromkreise überwacht werden. 
 
-### TODO
+### Spannungsteiler
 
- * Schutzschaltung um den Eingang des Arduino zu schützen. Evtl. mit Zener-Diode?
+Um Spannungen über 5 V messen zu können, wird ein Spannungsteiler benötigt. 
+R1 = 3 kOhm, R2 = 1 kOhm
+
+ * "Stromverbrauch", typischerweise 3 mA
+
+
+### Schutzschaltung
+
+ * Einfluss der Zener-Diode (kleiner Strom)
+ * > 16 V (ungültig)
+
 
 ## Links
 
@@ -25,10 +39,19 @@ Es sollen beide Stromkreise überwacht werden.
 
 ## Teileliste
 
+### Allgemein
+
 * Arduino Leonardo
-* Temperatursensor DS18B20
-* Widerstand 4.7 kOhm
-* Widerstand 1 MOhm (2x)
-* Widerstand 2.4 MOhm (2x)
 * Taster
 * Widerstand 10 kOhm
+
+### Temperatur
+
+* Temperatursensor DS18B20 (3x)
+* Widerstand 4.7 kOhm
+
+### Bordspannung
+
+* Widerstand 3 kOhm (2x)
+* Widerstand 1 kOhm (2x)
+* Z-Diode 1N4733A (2x)
