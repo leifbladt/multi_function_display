@@ -17,6 +17,8 @@ Um Spannungen über 5 V messen zu können, wird ein Spannungsteiler benötigt.
 R1 = 3 kOhm, R2 = 1 kOhm
 
  * "Stromverbrauch", typischerweise 3 mA
+ * Genauigkeit, Auflösung
+ * 0..20 V eigentlich nicht nötig
 
 
 ### Schutzschaltung
