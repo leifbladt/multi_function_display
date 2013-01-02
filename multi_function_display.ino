@@ -91,19 +91,29 @@ public:
       formatTemperature(_m->getTemp(), c);
       show(label, c);
     } 
-    else {
+    else if (_currentPage == 1) {
       char label[] = "Spannung:";
       char c[8];
       formatVoltage(_m->getVoltage(), c);
       show(label, c);
     }
+    #ifdef DEBUG_MODE
+    else if (_currentPage == 2) {
+      char label[] = "Memory:";
+      char c[5];
+      show(label, itoa(freeRam(), c, 10));
+    }
+    #endif
   }
 
 private:
+  #ifdef DEBUG_MODE
+  static const int PAGES = 3;
+  #else
   static const int PAGES = 2;
+  #endif
   LiquidCrystal _lcd;
   Measurements* _m;
-
   int _currentPage;
 
   void formatTemperature(const float input, char* s) {
@@ -134,6 +144,15 @@ private:
     Serial.println(value);
     #endif
   }
+
+  #ifdef DEBUG_MODE
+  int freeRam () {
+    // http://playground.arduino.cc/Code/AvailableMemory
+    extern int __heap_start, *__brkval; 
+    int v; 
+    return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+  }
+  #endif
 };
 
 Button button(BUTTON_PIN);
