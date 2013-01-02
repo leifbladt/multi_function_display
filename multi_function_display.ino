@@ -111,6 +111,7 @@ private:
     dtostrf(round(t1 * 2) / 2.0, 5, 1, s);
     s[5] = char(223);
     s[6] = 'C';
+    s[7] = '\0';
   }
 
   void formatVoltage(const float input, char* s) {
@@ -118,6 +119,7 @@ private:
     dtostrf(t1, 5, 1, s);
     s[5] = ' ';
     s[6] = 'V';
+    s[7] = '\0';
   }
 
   void show(char* label, char* value) {
