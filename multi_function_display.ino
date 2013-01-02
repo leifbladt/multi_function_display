@@ -9,9 +9,9 @@
 #define R1 3000.0
 #define R2 1000.0
 
-const int tempPin = 6;
-const int voltPin = A0;
-const int buttonPin = 7;
+#define TEMP1_PIN 6
+#define VOLTAGE1_PIN A0
+#define BUTTON_PIN 7
 
 const float voltageFactor = 5.0 * (R1 + R2) / R2 / 1023.0;
 
@@ -23,7 +23,7 @@ DeviceAddress thermometer = {
 class Measurements {
 public:
   Measurements() : 
-  _temp(), _voltage(), _ds(tempPin), _sensors(&_ds) {
+  _temp(), _voltage(), _ds(TEMP1_PIN), _sensors(&_ds) {
     _sensors.begin();
   }
 
@@ -53,7 +53,7 @@ private:
   }
 
   void updateVoltage() {
-    _voltage.addValue(analogRead(voltPin));
+    _voltage.addValue(analogRead(VOLTAGE1_PIN));
   }
 };
 
@@ -136,13 +136,13 @@ private:
   }
 };
 
-Button button(buttonPin);
+Button button(BUTTON_PIN);
 Measurements m;
 Display display(&m);
 
 void setup() {
   delay(2000);
-  pinMode(voltPin, INPUT);
+  pinMode(VOLTAGE1_PIN, INPUT);
   m.update();
   display.render();
   #ifdef DEBUG_MODE
