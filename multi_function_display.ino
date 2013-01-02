@@ -119,12 +119,13 @@ private:
     s[5] = ' ';
     s[6] = 'V';
   }
-  
+
   void show(char* label, char* value) {
     _lcd.setCursor(0, 0);
     _lcd.print(label);
-    _lcd.print(value);    
     _lcd.setCursor(9, 0);    
+    _lcd.print(value);
+    
     #ifdef DEBUG_MODE
     Serial.print(label);
     Serial.print(" ");
