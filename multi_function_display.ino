@@ -4,6 +4,8 @@
 #include "Buffer.h"
 #include "Button.h"
 
+//#define DEBUG_MODE
+
 #define R1 3000.0
 #define R2 1000.0
 
@@ -123,6 +125,11 @@ private:
     _lcd.print(label);
     _lcd.setCursor(10, 0);    
     _lcd.print(value);    
+    #ifdef DEBUG_MODE
+    Serial.print(label);
+    Serial.print(" ");
+    Serial.println(value);
+    #endif
   }
 };
 
@@ -135,7 +142,9 @@ void setup() {
   pinMode(voltPin, INPUT);
   m.update();
   display.render();
-  //  Serial.begin(9600);
+  #ifdef DEBUG_MODE
+  Serial.begin(9600);
+  #endif
 }
 
 void loop() {
