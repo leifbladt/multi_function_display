@@ -1,6 +1,8 @@
-#include <LiquidCrystal.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include "Buffer.h"
 #include "Button.h"
 
@@ -12,6 +14,11 @@
 #define TEMP1_PIN 6
 #define VOLTAGE1_PIN A0
 #define BUTTON_PIN 7
+#define OLED_DC 11
+#define OLED_CS 12
+#define OLED_CLK 10
+#define OLED_MOSI 9
+#define OLED_RESET 13
 
 const float voltageFactor = 5.0 * (R1 + R2) / R2 / 1023.0;
 
@@ -59,51 +66,58 @@ private:
 
 class Display {
 public:
-  Display(Measurements* m) :
-  _lcd(12, 11, 5, 4, 3, 2)
+  Display(Measurements* m, Adafruit_SSD1306* oled) 
   {
     _m = m;
-    _lcd.begin(16, 2);
+    _oled = oled;
     _currentPage = 0;
   }
 
   void switchPage() {
     _currentPage = (_currentPage + 1) % PAGES;
-    clear();
     render();
   }
 
   void switchToPage(int page) {
     _currentPage = page;
-    clear();
     render();
   }
 
   void clear() {
-    _lcd.clear();
-    _lcd.setCursor(0, 0);
+    _oled->clearDisplay();
+    _oled->setCursor(0, 0);
   }
 
   void render() {
+    clear();
     if (_currentPage == 0) {
-      char label[] = "Temp:";
+      char label[] = "T1";
       char c[8];
       formatTemperature(_m->getTemp(), c);
       show(label, c);
     } 
     else if (_currentPage == 1) {
-      char label[] = "Spannung:";
+      char label[] = "U1";
       char c[8];
       formatVoltage(_m->getVoltage(), c);
       show(label, c);
     }
     #ifdef DEBUG_MODE
     else if (_currentPage == 2) {
-      char label[] = "Memory:";
+      char label[] = "Mem";
       char c[5];
       show(label, itoa(freeRam(), c, 10));
     }
     #endif
+    
+    // Show bottom bar
+    _oled->setTextColor(WHITE);
+    _oled->setTextSize(2);
+    _oled->drawLine(0, 46, 127, 46, WHITE);
+    _oled->setCursor(36, 50);
+    _oled->println("12:21");
+    
+    _oled->display();
   }
 
 private:
@@ -112,14 +126,15 @@ private:
   #else
   static const int PAGES = 2;
   #endif
-  LiquidCrystal _lcd;
+
+  Adafruit_SSD1306* _oled;
   Measurements* _m;
   int _currentPage;
 
   void formatTemperature(const float input, char* s) {
     float t1 = round(input * 10) / 10.0;
     dtostrf(round(t1 * 2) / 2.0, 5, 1, s);
-    s[5] = char(223);
+    s[5] = char(247);
     s[6] = 'C';
     s[7] = '\0';
   }
@@ -133,10 +148,12 @@ private:
   }
 
   void show(char* label, char* value) {
-    _lcd.setCursor(0, 0);
-    _lcd.print(label);
-    _lcd.setCursor(9, 0);    
-    _lcd.print(value);
+    _oled->setTextColor(WHITE);
+    _oled->setTextSize(2);
+    _oled->setCursor(0, 15);
+    _oled->println(label);
+    _oled->setCursor(30, 15);    
+    _oled->print(value);
     
     #ifdef DEBUG_MODE
     Serial.print(label);
@@ -157,10 +174,14 @@ private:
 
 Button button(BUTTON_PIN);
 Measurements m;
-Display display(&m);
+Adafruit_SSD1306 oled(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+Display display(&m, &oled);
 
 void setup() {
   delay(2000);
+  oled.begin(SSD1306_SWITCHCAPVCC);
+  oled.display();
+
   pinMode(VOLTAGE1_PIN, INPUT);
   m.update();
   display.render();

@@ -33,6 +33,8 @@ R1 = 3 kOhm, R2 = 1 kOhm
 
  * http://www.pjrc.com/teensy/td_libs_OneWire.html
  * http://www.milesburton.com/?title=Dallas_Temperature_Control_Library
+ * https://github.com/adafruit/Adafruit_SSD1306
+ * https://github.com/adafruit/Adafruit-GFX-Library
 
 ### Datenblätter
 
