@@ -225,6 +225,7 @@ Display display(&m, &oled);
 void setup() {
   delay(2000);
   oled.begin(SSD1306_SWITCHCAPVCC);
+  oled.clearDisplay();
   oled.display();
 
   pinMode(VOLTAGE1_PIN, INPUT);
