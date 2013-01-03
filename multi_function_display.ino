@@ -24,13 +24,16 @@ const float voltageFactor = 5.0 * (R1 + R2) / R2 / 1023.0;
 
 long lastMeasureTime = 0;
 
-DeviceAddress thermometer = { 
+DeviceAddress temp1Addr = { 
   0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
+
+DeviceAddress temp2Addr = {   
+  0x28, 0x29, 0x5F, 0x37, 0x04, 0x00, 0x00, 0x94 };
 
 class Measurements {
 public:
   Measurements() : 
-  _temp(), _voltage(), _ds(TEMP1_PIN), _sensors(&_ds) {
+  _temp1(), _temp2(), _voltage(), _ds(TEMP1_PIN), _sensors(&_ds) {
     _sensors.begin();
   }
 
@@ -39,9 +42,13 @@ public:
     updateVoltage();
   }
 
-  float getTemp() {
-    return _temp.getValue();
+  float getTemp1() {
+    return _temp1.getValue();
   }
+  
+  float getTemp2() {
+    return _temp2.getValue();
+  }  
 
   float getVoltage() {
     int reading = _voltage.getValue();
@@ -49,14 +56,16 @@ public:
   }
 
 private:
-  Buffer <float> _temp;
+  Buffer <float> _temp1;
+  Buffer <float> _temp2;
   Buffer <int> _voltage;
   OneWire _ds;
   DallasTemperature _sensors;
 
   void updateTemp() {
     _sensors.requestTemperatures();
-    _temp.addValue(_sensors.getTempC(thermometer));
+    _temp1.addValue(_sensors.getTempC(temp1Addr));
+    _temp2.addValue(_sensors.getTempC(temp2Addr));
   }
 
   void updateVoltage() {
@@ -93,17 +102,23 @@ public:
     if (_currentPage == 0) {
       char label[] = "T1";
       char c[8];
-      formatTemperature(_m->getTemp(), c);
+      formatTemperature(_m->getTemp1(), c);
+      show(label, c);
+    }
+    else if (_currentPage == 1) {
+      char label[] = "T2";
+      char c[8];
+      formatTemperature(_m->getTemp2(), c);
       show(label, c);
     } 
-    else if (_currentPage == 1) {
+    else if (_currentPage == 2) {
       char label[] = "U1";
       char c[8];
       formatVoltage(_m->getVoltage(), c);
       show(label, c);
     }
     #ifdef DEBUG_MODE
-    else if (_currentPage == 2) {
+    else if (_currentPage == 3) {
       char label[] = "Mem";
       char c[5];
       show(label, itoa(freeRam(), c, 10));
@@ -122,9 +137,9 @@ public:
 
 private:
   #ifdef DEBUG_MODE
-  static const int PAGES = 3;
+  static const int PAGES = 4;
   #else
-  static const int PAGES = 2;
+  static const int PAGES = 3;
   #endif
 
   Adafruit_SSD1306* _oled;
