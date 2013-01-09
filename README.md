@@ -35,6 +35,7 @@ R1 = 3 kOhm, R2 = 1 kOhm
  * http://www.milesburton.com/?title=Dallas_Temperature_Control_Library
  * https://github.com/adafruit/Adafruit_SSD1306
  * https://github.com/adafruit/Adafruit-GFX-Library
+ * https://github.com/adafruit/RTClib
 
 ### Datenblätter
 

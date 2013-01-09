@@ -3,6 +3,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <RTClib.h>
 #include "Buffer.h"
 #include "Button.h"
 
@@ -105,11 +106,16 @@ private:
 
 class Display {
 public:
-  Display(Measurements* m, Adafruit_SSD1306* oled) 
+  Display(Measurements* m, Adafruit_SSD1306* oled, RTC_DS1307* rtc) 
   {
     _m = m;
     _oled = oled;
+    _rtc = rtc;
     _currentPage = 0;
+    Wire.begin();
+    _rtc->begin();
+    // following line sets the RTC to the date & time this sketch was compiled
+    _rtc->adjust(DateTime(__DATE__, __TIME__));
   }
 
   void switchPage() {
@@ -160,8 +166,11 @@ public:
     _oled->setTextSize(2);
     _oled->drawLine(0, 46, 127, 46, WHITE);
     _oled->setCursor(36, 50);
-    _oled->println("12:21");
-    
+    DateTime now = _rtc->now();
+    _oled->print(now.hour());
+    _oled->print(':');
+    _oled->print(now.minute(), DEC);
+
     _oled->display();
   }
 
@@ -174,6 +183,7 @@ private:
 
   Adafruit_SSD1306* _oled;
   Measurements* _m;
+  RTC_DS1307* _rtc;
   int _currentPage;
 
   void formatTemperature(const float input, char* s) {
@@ -220,7 +230,8 @@ private:
 Button button(BUTTON_PIN);
 Measurements m;
 Adafruit_SSD1306 oled(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
-Display display(&m, &oled);
+RTC_DS1307 rtc;
+Display display(&m, &oled, &rtc);
 
 void setup() {
   delay(2000);
