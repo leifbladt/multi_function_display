@@ -8,8 +8,14 @@
 
 //#define DEBUG_MODE
 
-#define R1 3000.0
-#define R2 1000.0
+DeviceAddress temp1Addr = { 
+  0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
+
+DeviceAddress temp2Addr = {   
+  0x28, 0x29, 0x5F, 0x37, 0x04, 0x00, 0x00, 0x94 };
+
+const float R1 = 3000.0;
+const float R2 = 1000.0;
 
 #define TEMP1_PIN 6
 #define VOLTAGE1_PIN A0
@@ -23,12 +29,6 @@
 const float voltageFactor = 5.0 * (R1 + R2) / R2 / 1023.0;
 
 long lastMeasureTime = 0;
-
-DeviceAddress temp1Addr = { 
-  0x10, 0x5E, 0x98, 0x74, 0x02, 0x08, 0x00, 0xD0 };
-
-DeviceAddress temp2Addr = {   
-  0x28, 0x29, 0x5F, 0x37, 0x04, 0x00, 0x00, 0x94 };
 
 class Measurements {
 public:
