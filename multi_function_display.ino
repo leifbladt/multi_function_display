@@ -263,7 +263,7 @@ void loop() {
     #endif
   }
 
-  if (m.getTemp() > 25.0) {
-    display.switchToPage(0);
-  }
+  //  if (m.getTemp() > 25.0) {
+  //    display.switchToPage(0);
+  //  }
 }
