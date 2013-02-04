@@ -87,8 +87,11 @@ public:
     _currentPage = 0;
     Wire.begin();
     _rtc->begin();
-    // following line sets the RTC to the date & time this sketch was compiled
-    _rtc->adjust(DateTime(__DATE__, __TIME__));
+    
+//    if (!_rtc->isrunning()) {
+//      // following line sets the RTC to the date & time this sketch was compiled
+//      _rtc->adjust(DateTime(__DATE__, __TIME__));
+//    }
   }
 
   void switchPage() {
