@@ -128,7 +128,7 @@ public:
     }
     #ifdef DEBUG_MODE
     else if (_currentPage == 3) {
-      char label[] = "Mem";
+      char label[] = "M";
       char c[5];
       show(label, itoa(freeRam(), c, 10));
     }
