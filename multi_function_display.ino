@@ -137,8 +137,8 @@ public:
     // Show bottom bar
     _oled->setTextColor(WHITE);
     _oled->setTextSize(2);
-    _oled->drawLine(0, 46, 127, 46, WHITE);
-    _oled->setCursor(36, 50);
+    _oled->drawLine(0, 34, 127, 34, WHITE);
+    _oled->setCursor(0, 38);
     _now = _rtc->now();
     _oled->print(_now.hour(), DEC);
     _oled->print(':');
@@ -181,9 +181,9 @@ private:
   void show(char* label, char* value) {
     _oled->setTextColor(WHITE);
     _oled->setTextSize(2);
-    _oled->setCursor(0, 15);
+    _oled->setCursor(0, 8);
     _oled->println(label);
-    _oled->setCursor(30, 15);    
+    _oled->setCursor(30, 8);    
     _oled->print(value);
     
     #ifdef DEBUG_MODE
