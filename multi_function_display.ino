@@ -58,36 +58,6 @@ public:
     int reading = _voltage.getValue();
     return reading * voltageFactor;
   }
-  
-  #ifdef DEBUG_MODE
-  void discoverOneWireDevices() {
-    // http://www.hacktronics.com/Tutorials/arduino-1-wire-address-finder.html
-    byte i;
-    byte present = 0;
-    byte data[12];
-    byte addr[8];
-    
-    while(_ds.search(addr)) {
-      Serial.print("Found \'1-Wire\' device with address:\n\r");
-      for( i = 0; i < 8; i++) {
-        Serial.print("0x");
-        if (addr[i] < 16) {
-          Serial.print('0');
-        }
-        Serial.print(addr[i], HEX);
-        if (i < 7) {
-          Serial.print(", ");
-        }
-      }
-      Serial.println();
-      if (OneWire::crc8(addr, 7) != addr[7]) {
-        Serial.print("CRC is not valid!\n");
-        return;
-      }
-    }
-    _ds.reset_search();
-  }
- #endif 
 
 private:
   Buffer <float> _temp1;
@@ -260,10 +230,6 @@ void loop() {
     m.update();
     display.render();
     lastMeasureTime = millis();
-    
-    #ifdef DEBUG_MODE
-    m.discoverOneWireDevices();
-    #endif
   }
 
   //  if (m.getTemp() > 25.0) {
