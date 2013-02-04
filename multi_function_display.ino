@@ -139,11 +139,13 @@ public:
     _oled->setTextSize(2);
     _oled->drawLine(0, 46, 127, 46, WHITE);
     _oled->setCursor(36, 50);
-    DateTime now = _rtc->now();
-    _oled->print(now.hour());
+    _now = _rtc->now();
+    _oled->print(_now.hour(), DEC);
     _oled->print(':');
-    _oled->print(now.minute(), DEC);
-
+    if (_now.minute() < 10) {
+      _oled->print("0");
+    }
+    _oled->print(_now.minute(), DEC);
     _oled->display();
   }
 
@@ -158,6 +160,7 @@ private:
   Measurements* _m;
   RTC_DS1307* _rtc;
   int _currentPage;
+  DateTime _now;
 
   void formatTemperature(const float input, char* s) {
     float t1 = round(input * 10) / 10.0;
