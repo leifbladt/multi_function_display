@@ -47,11 +47,11 @@ public:
   }
 
   float getTemp1() {
-    return _temp1.getValue();
+    return constrain(_temp1.getValue(), -99.0, 99.0);
   }
   
   float getTemp2() {
-    return _temp2.getValue();
+    return constrain(_temp2.getValue(), -99.0, 99.0);
   }  
 
   float getVoltage() {
